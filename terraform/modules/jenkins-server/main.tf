@@ -43,18 +43,21 @@ resource "google_compute_instance" "bastion" {
   tags = [var.name]  # Add network tags
 
   metadata_startup_script = <<-EOF
-    #! /bin/bash
-    sudo apt update
-    sudo apt install -y git default-jdk 
-    sudo apt install openjdk-11-jre-headless -y
-    # Install Jenkins
-    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
-    sudo apt update
-    sudo apt install -y jenkins
-    sudo systemctl start jenkins
-    sudo systemctl enable jenkins    
+  #! /bin/bash
+    sudo apt-get update
+    sudo apt install git -y
+    sudo apt install -y openjdk-17-jre wget vim
 
+    # Install Jenkins
+    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+    /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install jenkins -y
+    sudo systemctl start jenkins
+    sudo systemctl enable jenkins
     # Install Maven
     wget https://apache.osuosl.org/maven/maven-3/3.9.5/binaries/apache-maven-3.9.5-bin.tar.gz
     tar xzvf apache-maven-3.9.5-bin.tar.gz
@@ -64,10 +67,10 @@ resource "google_compute_instance" "bastion" {
     echo 'export PATH=$M2_HOME/bin:$PATH' >> ~/.bashrc
     source ~/.bashrc
     # Install Ansible
-    sudo apt update
-    sudo apt install -y software-properties-common
+    sudo apt-get update
+    sudo apt-get install -y software-properties-common
     sudo add-apt-repository --yes --update ppa:ansible/ansible
-    sudo apt install -y ansible
+    sudo apt-get install -y ansible
     #source ~/.bashrc
   EOF
 
